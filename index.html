@@ -79,8 +79,8 @@
       <h2 id="formTitle" class="text-3xl font-black mb-2 text-center" style="color: var(--accent);"></h2>
       <p id="formInstructions" class="mb-8 italic text-center px-4 opacity-60"></p>
 
-      <form id="feedbackForm" onsubmit="return handleFormSubmit(this)">
-        <input type="hidden" name="tag" id="tagInput" value="">
+      <form id="feedbackForm" onsubmit="event.preventDefault(); handleFormSubmit(this);">
+      <input type="hidden" name="tag" id="tagInput" value="">
 
         <div class="space-y-4 mb-8">
           <div>
