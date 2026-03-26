@@ -247,7 +247,6 @@
 
   // Form submission
     async function handleFormSubmit(form) {
-      // 1. Check that all multiple choice "pill" questions have an answer
       const hiddens = form.querySelectorAll('input[type="hidden"][id^="hidden_q_"]');
       for (let i = 0; i < hiddens.length; i++) {
         if (!hiddens[i].value) {
@@ -256,27 +255,30 @@
         }
       }
 
-      // 2. Disable the submit button to prevent double-clicking
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.innerText = "Saving...";
 
-      // 3. Package form data into URLSearchParams (The bulletproof format for Google Scripts)
-      const formData = new URLSearchParams(new FormData(form));
+      // Package data into a standard JSON object
+      const formData = new FormData(form);
+      const dataObject = Object.fromEntries(formData.entries());
 
       try {
-        // 4. Send the data silently to Google
+        // Send as a plain text JSON string (Bypasses CORS perfectly)
         fetch(SCRIPT_URL, {
           method: 'POST',
-          body: formData
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'text/plain', 
+          },
+          body: JSON.stringify(dataObject)
         });
         
-        // 5. Wait 1 second, then transition to the success screen
+        // Wait 1 second, then show success screen
         setTimeout(() => {
           document.getElementById('formContent').style.display = 'none';
           document.getElementById('logoBox').style.display = 'none';
 
-          // 6. Handle the dynamic resources/buttons
           let bodyContent = currentSessionData.emailBody;
           if (bodyContent && bodyContent.trim().length > 0) {
             const container = document.getElementById('resourceContainer');
@@ -297,7 +299,7 @@
         btn.innerText = "Submit Response";
       }
 
-      return false; // Prevent the browser from refreshing the page
+      return false; 
     }
   </script>
 </body>
