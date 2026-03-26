@@ -245,9 +245,9 @@
       document.getElementById('hidden_q_' + qIndex).value = values.join(' | ');
     }
 
-    // Form submission [cite: 393-426]
-    // Form submission
+  // Form submission
     async function handleFormSubmit(form) {
+      // 1. Check that all multiple choice "pill" questions have an answer
       const hiddens = form.querySelectorAll('input[type="hidden"][id^="hidden_q_"]');
       for (let i = 0; i < hiddens.length; i++) {
         if (!hiddens[i].value) {
@@ -256,31 +256,27 @@
         }
       }
 
+      // 2. Disable the submit button to prevent double-clicking
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.innerText = "Saving...";
 
-      // Package form data into JSON
-      const formData = new FormData(form);
-      const dataObject = Object.fromEntries(formData.entries());
+      // 3. Package form data into URLSearchParams (The bulletproof format for Google Scripts)
+      const formData = new URLSearchParams(new FormData(form));
 
       try {
-        const response = await fetch(SCRIPT_URL, {
+        // 4. Send the data silently to Google
+        fetch(SCRIPT_URL, {
           method: 'POST',
-          mode: 'no-cors', // Bypasses the Google security block
-          cache: 'no-cache',
-          headers: {
-            'Content-Type': 'text/plain', 
-          },
-          body: JSON.stringify(dataObject)
+          body: formData
         });
         
-        // Wait 1 second, then show success screen
+        // 5. Wait 1 second, then transition to the success screen
         setTimeout(() => {
           document.getElementById('formContent').style.display = 'none';
           document.getElementById('logoBox').style.display = 'none';
 
-          // Handle resources
+          // 6. Handle the dynamic resources/buttons
           let bodyContent = currentSessionData.emailBody;
           if (bodyContent && bodyContent.trim().length > 0) {
             const container = document.getElementById('resourceContainer');
@@ -301,7 +297,7 @@
         btn.innerText = "Submit Response";
       }
 
-      return false; 
+      return false; // Prevent the browser from refreshing the page
     }
   </script>
 </body>
